@@ -7,10 +7,11 @@ WORKDIR /usr/src/app
 ENV NODE_ENV=development
 
 RUN apk update && \
-    apk add git \
-    npm install -g @nestjs/cli
+    apk add git
 
-RUN git clone https://github.com/UMGC-Capstone-Project/minibook-backend /usr/src/app
+RUN npm install -g @nestjs/cli
+
+RUN git clone https://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@github.com/UMGC-Capstone-Project/minibook-backend.git /usr/src/app
 
 RUN npm install
 
