@@ -15,6 +15,6 @@ RUN git clone https://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@github.com/UMGC-C
 
 RUN npm install
 
-CMD ["npm", "run", "start:dev"]
+CMD ["npm", "run", "start"]
 
 EXPOSE 3000

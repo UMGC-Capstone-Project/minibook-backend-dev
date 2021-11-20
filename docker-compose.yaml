@@ -5,6 +5,8 @@ services:
       - db-password
     depends_on:
       - db
+    ports:
+      - 3000:3000
   db:
     image: mariadb
     restart: always
@@ -20,12 +22,11 @@ services:
   proxy:
     build: proxy
     ports:
-      - 80:80
+      - 3001:80
     depends_on:
       - backend
 volumes:
-  db-data:
+  db-data: null
 secrets:
   db-password:
     file: db/password.txt
-    
