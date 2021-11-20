@@ -14,6 +14,6 @@ RUN git clone https://github.com/UMGC-Capstone-Project/minibook-backend /usr/src
 
 RUN npm install
 
-CMD ["npm", "run", "dev"]
+CMD ["npm", "run", "start:dev"]
 
 EXPOSE 3000
