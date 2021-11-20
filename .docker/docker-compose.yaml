@@ -1,6 +1,9 @@
+version: "3.7"
 services:
   backend:
-    build: backend
+    build:
+      context: backend
+      target: development
     secrets:
       - db-password
     depends_on:
@@ -10,6 +13,19 @@ services:
   db:
     image: mariadb
     restart: always
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "127.0.0.1",
+          "--silent"
+        ]
+      interval: 3s
+      retries: 5
+      start_period: 30s
     secrets:
       - db-password
     volumes:
@@ -22,7 +38,7 @@ services:
   proxy:
     build: proxy
     ports:
-      - 3001:80
+      - 8080:80
     depends_on:
       - backend
 volumes:
