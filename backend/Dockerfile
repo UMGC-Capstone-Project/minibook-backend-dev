@@ -2,8 +2,11 @@ FROM node:16.13.0-alpine3.13 AS development
 
 LABEL maintainer="David C. Mydlarz <dmydlarz@student.umgc.edu>"
 
-RUN apt-get update \
-    && apt-get install -y git
+RUN apk update && \
+    apk add git \
+    npm install && \
+    npm install -g npm && \
+    npm install -g @nestjs/cli \
 
 RUN git clone https://github.com/UMGC-Capstone-Project/minibook-backend /usr/src/app
 
