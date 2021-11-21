@@ -1,4 +1,4 @@
-FROM node:16.13.0-alpine3.13 AS development
+FROM node:16.13.0-alpine3.13
 
 LABEL maintainer="David C. Mydlarz <dmydlarz@student.umgc.edu>"
 
