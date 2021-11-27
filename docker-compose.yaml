@@ -1,33 +1,131 @@
+version: '3.1'
 services:
   backend:
     build: backend
     tty: true
+    restart: always
     secrets:
       - db-password
     depends_on:
       - db
+      - redis
+  redis:
+    image: "redis:alpine"
+    restart: always
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+    volumes:
+      - redis-data:/usr/local/etc/redis
   db:
-    image: mariadb
+    image: postgres
     restart: always
     secrets:
       - db-password
     volumes:
-      - db-data:/var/lib/mysql
+      - db-data:/var/lib/postgresql/data
     environment:
-      - MYSQL_DATABASE=minibook_development
-      - MYSQL_ROOT_PASSWORD_FILE=/run/secrets/db-password
+      # - POSTGRES_USER=minibook_user
+      # - POSTGRES_PASSWORD=db-q5n2g
+      - POSTGRES_PASSWORD=db-q5n2g
+      - POSTGRES_DB=minibook_development
+      - TZ="Asia/Tokyo"
     expose:
-      - 3306
+      - 5432
     ports:
-      - 3306:3306
+      - 5432:5432
   proxy:
     build: proxy
     ports:
       - 80:80
     depends_on:
       - backend
+  pgadmin:
+    image: dpage/pgadmin4
+    restart: always
+    ports:
+      - 8080:80
+    environment:
+      PGADMIN_DEFAULT_EMAIL: info@minibook.io
+      PGADMIN_DEFAULT_PASSWORD: db-q5n2g
+    volumes:
+      - pgadmin:/var/lib/pgadmin
+    depends_on:
+      - db
+  es01:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.1
+    container_name: es01
+    environment:
+      - node.name=es01
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es02,es03
+      - cluster.initial_master_nodes=es01,es02,es03
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data01:/usr/share/elasticsearch/data
+    ports:
+      - 9200:9200
+    networks:
+      - elastic
+  es02:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.1
+    container_name: es02
+    environment:
+      - node.name=es02
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es01,es03
+      - cluster.initial_master_nodes=es01,es02,es03
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data02:/usr/share/elasticsearch/data
+    networks:
+      - elastic
+  es03:
+    image: docker.elastic.co/elasticsearch/elasticsearch:7.9.1
+    container_name: es03
+    environment:
+      - node.name=es03
+      - cluster.name=es-docker-cluster
+      - discovery.seed_hosts=es01,es02
+      - cluster.initial_master_nodes=es01,es02,es03
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    volumes:
+      - data03:/usr/share/elasticsearch/data
+    networks:
+      - elastic
+
 volumes:
-  db-data: null
+  db-data:
+    driver: local
+  pgadmin:
+    driver: local
+  redis-data:
+    driver: local
+  data01:
+    driver: local
+  data02:
+    driver: local
+  data03:
+    driver: local
 secrets:
   db-password:
     file: db/password.txt
+networks:
+  # postgres:
+  #   driver: bridge
+  elastic:
+    driver: bridge
