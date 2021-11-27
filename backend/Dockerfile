@@ -12,7 +12,7 @@ RUN apk update && \
 RUN npm install -g @nestjs/cli
 RUN npm install -g ts-node
 
-RUN git clone https://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@github.com/UMGC-Capstone-Project/minibook-backend.git /usr/src/app
+RUN git clone https://github.com/UMGC-Capstone-Project/minibook-backend.git /usr/src/app
 
 RUN npm install
 
